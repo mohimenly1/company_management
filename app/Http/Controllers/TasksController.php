@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\projects;
+use App\TaskComment;
 use App\Tasks;
 use App\Teams;
 use App\User;
@@ -140,13 +141,14 @@ class TasksController extends Controller
 
     public function getUserTasks(Request $request)
     {
-        $userId = 6;  // Replace this with the correct user ID
+        $userId = $request->query('user_id');  // Get user ID from query parameter
     
         if ($userId) {
             Log::info("Authenticated user ID: " . $userId);
         } else {
             Log::info("User ID not found. Possible token issue.");
             Log::info("Token provided: " . $request->bearerToken());
+            return response()->json(['error' => 'User ID is required'], 400);
         }
     
         // Fetch tasks for the user with related comments and the user who made the comment
@@ -157,7 +159,24 @@ class TasksController extends Controller
         return response()->json($tasks);
     }
     
-    
+    public function storeComment(Request $request)
+    {
+        // Validate the input data
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id', // Make sure task exists
+            'user_id' => 'required|exists:users,id', // Make sure user exists
+            'comment' => 'required|string|max:500', // Limit comment size
+        ]);
+
+        // Create a new comment
+        TaskComment::create([
+            'task_id' => $request->task_id,
+            'user_id' => $request->user_id,
+            'comment' => $request->comment,
+        ]);
+
+        return response()->json(['message' => 'Comment added successfully'], 201);
+    }
     
     
 }

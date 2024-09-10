@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\TeamsController;
 use Illuminate\Support\Facades\Route;
@@ -54,3 +55,9 @@ Route::get('/get-team-members/{team}', [TasksController::class, 'getTeamMembers'
 Route::middleware('auth:sanctum')->get('/getUserTasks', [TasksController::class, 'getUserTasks']);
 
 Route::get('/{page}', 'AdminController@index');
+
+// routes/web.php
+
+Route::get('/team-members/chat', [ChatController::class, 'teamMembersChat'])->name('teamMembersChat');
+Route::get('/team-members/chat/{receiverId}', [ChatController::class, 'showSendMessageForm'])->name('teamMembers.message');
+Route::post('/team-members/chat/{receiverId}', [ChatController::class, 'sendMessage'])->name('teamMembers.sendMessage');
